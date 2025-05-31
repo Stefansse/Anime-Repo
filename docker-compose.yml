@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  elasticsearch:
+    image: elasticsearch:8.9.2
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false   # disable security for quick local dev (not for prod)
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m  # set JVM heap size
+    ports:
+      - "9200:9200"   # REST API
+      - "9300:9300"   # cluster communication
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    networks:
+      - elk
+
+  kibana:
+    image: kibana:8.9.2
+    container_name: kibana
+    environment:
+      ELASTICSEARCH_HOSTS: "http://elasticsearch:9200"
+      # disable security in Kibana as well if needed
+      SERVER_HOST: "0.0.0.0"
+    ports:
+      - "5601:5601"  # Kibana UI port
+    depends_on:
+      - elasticsearch
+    networks:
+      - elk
+
+volumes:
+  esdata:
+
+networks:
+  elk:

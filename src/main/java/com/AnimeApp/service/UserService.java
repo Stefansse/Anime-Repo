@@ -3,7 +3,7 @@ package com.AnimeApp.service;
 import com.AnimeApp.model.User;
 import com.AnimeApp.model.dto.LoginBody;
 import com.AnimeApp.model.dto.RegistrationBody;
-import com.AnimeApp.model.exceptions.UserAlreadyExistsException;
+import com.AnimeApp.model.exceptions.AuthorAlreadyExistsException;
 import com.AnimeApp.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -26,10 +26,10 @@ public class UserService {
 
 
 
-    public User registerUser(RegistrationBody registrationBody) throws UserAlreadyExistsException {
+    public User registerUser(RegistrationBody registrationBody) throws AuthorAlreadyExistsException {
         if (userRepository.findByEmailIgnoreCase(registrationBody.getEmail()).isPresent()
         || userRepository.findByUsernameIgnoreCase(registrationBody.getUsername()).isPresent()) {
-            throw new UserAlreadyExistsException();
+            throw new AuthorAlreadyExistsException();
         }
         User user = new User();
         user.setUsername(registrationBody.getUsername());

@@ -3,41 +3,43 @@ package com.AnimeApp.model.mappers;
 import com.AnimeApp.model.Manga;
 import com.AnimeApp.model.dto.mainDTOs.MangaDTO;
 import com.AnimeApp.model.dto.mainDTOs.AuthorDTO;
+import com.AnimeApp.repository.AuthorRepository;
 import org.springframework.stereotype.Component;
 
 @Component
 public class MangaMapper {
 
     private final AuthorMapper authorMapper;
+    private final AuthorRepository authorRepository;
 
-    public MangaMapper(AuthorMapper authorMapper) {
+    public MangaMapper(AuthorMapper authorMapper, AuthorRepository authorRepository) {
         this.authorMapper = authorMapper;
+        this.authorRepository = authorRepository;
     }
 
     public MangaDTO toDTO(Manga manga) {
         AuthorDTO authorDTO = authorMapper.toDTO(manga.getAuthorM());
-
         return new MangaDTO(
-                manga.getId(),                // Mapping the id
-                manga.getName(),              // Mapping the name
-                manga.getDateAired(),         // Mapping the releaseDate
-                manga.getVol(),               // Mapping the volume (vol)
-                manga.getRating(),            // Mapping the rating
-                authorDTO                     // Mapping the AuthorDTO
+                manga.getId(),
+                manga.getName(),
+                manga.getDateAired(),
+                manga.getVol(),
+                manga.getRating(),
+                manga.getAuthorM().getId(),
+                manga.getAuthorM().getFirstName() + ' ' + manga.getAuthorM().getLastName()
         );
     }
 
-    public Manga fromDTO(MangaDTO mangaDTO) {
+    public Manga fromDTO(MangaDTO dto) {
         Manga manga = new Manga();
-        manga.setId(mangaDTO.getId());        // Setting the id if needed for updates
-        manga.setName(mangaDTO.getName());
-        manga.setDateAired(mangaDTO.getReleaseDate());
-        manga.setVol(mangaDTO.getVol());
-        manga.setRating(mangaDTO.getRating());
+        manga.setId(dto.getId());
+        manga.setName(dto.getName());
+        manga.setDateAired(dto.getDateAired());
+        manga.setVol(dto.getVol());
+        manga.setRating(dto.getRating());
 
-        if (mangaDTO.getAuthor() != null) {
-            manga.setAuthorM(authorMapper.fromDTO(mangaDTO.getAuthor()));
-        }
+        manga.setAuthorM(authorRepository.findById(dto.getAuthorId())
+                .orElseThrow(() -> new RuntimeException("Author not found with ID: " + dto.getAuthorId())));
 
         return manga;
     }

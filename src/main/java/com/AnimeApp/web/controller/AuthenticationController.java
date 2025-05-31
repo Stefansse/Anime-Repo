@@ -3,7 +3,7 @@ package com.AnimeApp.web.controller;
 import com.AnimeApp.model.dto.LoginBody;
 import com.AnimeApp.model.dto.LoginResponse;
 import com.AnimeApp.model.dto.RegistrationBody;
-import com.AnimeApp.model.exceptions.UserAlreadyExistsException;
+import com.AnimeApp.model.exceptions.AuthorAlreadyExistsException;
 import com.AnimeApp.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth/")
+@CrossOrigin(origins = "http://localhost:5173")
 public class AuthenticationController {
 
     private final UserService userService;
@@ -27,7 +28,7 @@ public class AuthenticationController {
         try {
             userService.registerUser(registrationBody);
             return ResponseEntity.ok().build();
-        } catch (UserAlreadyExistsException e) {
+        } catch (AuthorAlreadyExistsException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
     }

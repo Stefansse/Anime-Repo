@@ -8,6 +8,10 @@ public enum Genre {
     ISEKAI,
     Slice_Of_Life,
     MECHA,
-    SCIENCE_FICTION
+    SCIENCE_FICTION,
+    FANTASY,
+    HORROR,
+    DRAMA,
+    THRILLER
 
 }

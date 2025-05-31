@@ -2,8 +2,10 @@ package com.AnimeApp.model;
 
 import com.AnimeApp.model.enumerations.Genre;
 import com.AnimeApp.model.enumerations.Type;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -11,6 +13,7 @@ import java.util.Set;
 
 @Entity
 @Data
+@EqualsAndHashCode(exclude = "manga")
 public class Anime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,7 +22,7 @@ public class Anime {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = true)
+    @Column(nullable = true, length = 1000)
     private String plot;
 
     @Column(nullable = false)
@@ -52,8 +55,8 @@ public class Anime {
     @JoinColumn(name = "author_id", nullable = false)
     private Author author;
 
-    @Lob // Indicates a large object (CLOB)
-    @Column(nullable = true) // Nullable if the image is optional
+
+    @Column(nullable = true, columnDefinition = "TEXT") // Nullable if the image is optional
     private String animeImage; // Stores the image as a Base64-encoded string
 
 
@@ -62,6 +65,7 @@ public class Anime {
 
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(
             name = "anime_studios",
             joinColumns = @JoinColumn(name = "anime_id"),

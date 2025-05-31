@@ -2,14 +2,15 @@ package com.AnimeApp.service.mainE;
 
 import com.AnimeApp.model.Author;
 import com.AnimeApp.model.dto.mainDTOs.AuthorDTO;
-import com.AnimeApp.model.exceptions.UserAlreadyExistsException;
+import com.AnimeApp.model.exceptions.AuthorNotFoundException;
+import com.AnimeApp.model.exceptions.AuthorAlreadyExistsException;
 import com.AnimeApp.model.mappers.AuthorMapper;
 import com.AnimeApp.repository.AuthorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,45 +25,48 @@ public class AuthorService {
         this.authorMapper = authorMapper;
     }
 
-    // Get all authors
     public List<AuthorDTO> getAllAuthors() {
-        List<Author> authors = authorRepository.findAll();
-        return authors.stream()
+        return authorRepository.findAll().stream()
                 .map(authorMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
-    // Get author by ID
     public AuthorDTO getAuthorById(Long id) {
-        Optional<Author> author = authorRepository.findById(id);
-        return author.map(authorMapper::toDTO).orElse(null); // or throw exception if needed
+        Author author = authorRepository.findById(id)
+                .orElseThrow(() -> new AuthorNotFoundException(id));
+        return authorMapper.toDTO(author);
     }
 
-    // Create new author
+    @Transactional
     public AuthorDTO createAuthor(AuthorDTO authorDTO) {
-        Author author = authorMapper.fromDTO(authorDTO);
-        Author savedAuthor = authorRepository.save(author);
-        return authorMapper.toDTO(savedAuthor);
-    }
-
-    // Update an existing author
-    public AuthorDTO updateAuthor(Long id, AuthorDTO authorDTO) {
-        Optional<Author> existingAuthor = authorRepository.findById(id);
-        if (existingAuthor.isPresent()) {
-            Author author = existingAuthor.get();
-            author.setFirstName(authorDTO.getFirstName());
-            author.setLastName(authorDTO.getLastName());
-            author.setCountry(authorDTO.getCountry());
-            author.setBirthDate(authorDTO.getBirthDate());
-            Author updatedAuthor = authorRepository.save(author);
-            return authorMapper.toDTO(updatedAuthor);
-        } else {
-            return null; // Or throw an exception if needed
+        boolean exists = authorRepository.existsByFirstNameAndLastName(
+                authorDTO.getFirstName(), authorDTO.getLastName());
+        if (exists) {
+            throw new AuthorAlreadyExistsException("Author with the same name already exists");
         }
+
+        Author newAuthor = authorMapper.fromDTO(authorDTO);
+        return authorMapper.toDTO(authorRepository.save(newAuthor));
     }
 
-    // Delete author
+    @Transactional
+    public AuthorDTO updateAuthor(Long id, AuthorDTO authorDTO) {
+        Author author = authorRepository.findById(id)
+                .orElseThrow(() -> new AuthorNotFoundException(id));
+
+        author.setFirstName(authorDTO.getFirstName());
+        author.setLastName(authorDTO.getLastName());
+        author.setCountry(authorDTO.getCountry());
+        author.setBirthDate(authorDTO.getBirthDate());
+
+        return authorMapper.toDTO(authorRepository.save(author));
+    }
+
+    @Transactional
     public void deleteAuthor(Long id) {
+        if (!authorRepository.existsById(id)) {
+            throw new AuthorNotFoundException(id);
+        }
         authorRepository.deleteById(id);
     }
 }

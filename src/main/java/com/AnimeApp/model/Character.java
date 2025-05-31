@@ -17,12 +17,12 @@ public class Character {
     @Column(nullable = false)
     private String description;
 
-    @Lob // Indicates a large object (CLOB)
+
     @Column(nullable = true) // Nullable if the image is optional
     private String charImage; // Stores the image as a Base64-encoded string
 
     @OneToOne
-    @JoinColumn(name = "anime_id")
+    @JoinColumn(name = "anime_id", columnDefinition = "TEXT")
     private Anime anime;
 
     public Character() {

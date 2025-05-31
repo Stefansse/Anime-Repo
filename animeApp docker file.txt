@@ -1,0 +1,1 @@
+docker run -p 5433:5432 -e POSTGRES_USER=sfn -e POSTGRES_PASSWORD=sfn123 -e POSTGRES_DB=AnimeDB -d postgres

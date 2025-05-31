@@ -2,12 +2,14 @@ package com.AnimeApp.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 
 import java.time.LocalDate;
 
 @Entity
 @Data
+@EqualsAndHashCode(exclude = "manga")
 public class Manga {
 
     // Getter for id
