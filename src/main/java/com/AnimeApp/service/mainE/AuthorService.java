@@ -7,6 +7,7 @@ import com.AnimeApp.model.exceptions.AuthorAlreadyExistsException;
 import com.AnimeApp.model.mappers.AuthorMapper;
 import com.AnimeApp.repository.AuthorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +26,7 @@ public class AuthorService {
         this.authorMapper = authorMapper;
     }
 
+    @Cacheable("authors")
     public List<AuthorDTO> getAllAuthors() {
         return authorRepository.findAll().stream()
                 .map(authorMapper::toDTO)

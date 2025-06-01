@@ -21,7 +21,6 @@ services:
     container_name: kibana
     environment:
       ELASTICSEARCH_HOSTS: "http://elasticsearch:9200"
-      # disable security in Kibana as well if needed
       SERVER_HOST: "0.0.0.0"
     ports:
       - "5601:5601"  # Kibana UI port
@@ -30,8 +29,55 @@ services:
     networks:
       - elk
 
+  minio:
+    image: quay.io/minio/minio:latest
+    container_name: minio
+    ports:
+      - "9000:9000"     # MinIO API port
+      - "9001:9001"     # MinIO Console port
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    restart: unless-stopped
+    networks:
+      - elk
+
+  redis:
+    image: redis:7.2
+    container_name: redis-cache
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    networks:
+      - elk
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - elk
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - elk
+
 volumes:
   esdata:
+  minio_data:
 
 networks:
   elk:
+    driver: bridge
